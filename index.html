@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Case Frontend</title>
+    <script>
+        var BASE_URL = "http://localhost:8080/app-0.0.1-SNAPSHOT";
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <ul class="menu">
+            <li><router-link :to="{ name: 'product_list'}">Ürünler</router-link></li>
+            <li><router-link :to="{ name: 'product_create'}">Ürün Ekle</router-link></li>
+            <li><router-link :to="{ name: 'category_list'}">Kategoriler</router-link></li>
+            <li><router-link :to="{ name: 'category_create'}">Kategori Ekle</router-link></li>
+            <li><router-link :to="{ name: 'campaign_list'}">Kampanyalar</router-link></li>
+            <li><router-link :to="{ name: 'campaign_create'}">Kampanya Ekle</router-link></li>
+        </ul>
+        <router-view class="view"></router-view>
+    </div>
+
+    <!-- Products -->
+    <template id="products">
+        <div>
+            <h1>Ürün Listesi</h1>
+            <table cellpadding="1" border="1px">
+                <thead>
+                    <tr>
+                        <th>Ürün Adı</th>
+                        <th>Fiyat</th>
+                        <th>#</th>
+                        <th>#</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(product,key) in products">
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.price }}</td>
+                        <td><router-link :to="{ name: 'product_edit', params: { id: product.productId }}">Düzenle</router-link></td>
+                        <td><a @click="productDelete(key)">Sil</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+    <!-- /Products -->
+
+    <!-- Product -->
+    <template id="product">
+        <div v-if="show">
+            <ul>
+                <li>
+                    <label>Ürün Adı</label>
+                    <input type="text" v-model="product.name" />
+                </li>
+
+                <li>
+                    <label>Fiyat</label>
+                    <input type="text" v-model="product.price" />
+                </li>
+
+                <li>
+                    <label>Kategori</label>
+                    <select v-model="product.category">
+                        <option value=""> -- Seçiniz -- </option>
+                        <option v-for="cat in categories" :value="cat.id">
+                            {{ cat.name }}
+                        </option>
+                    </select>
+
+                </li>
+
+                <li>
+                    <label>Kampanya</label>
+                    <select v-model="product.campaign">
+                        <option value=""> -- Seçiniz -- </option>
+                        <option v-for="campaign in campaigns" :value="campaign.id">
+                            {{ campaign.name }}
+                        </option>
+                    </select>
+                </li>
+
+                <li>
+                    <input type="submit" @click="save()" value="Kaydet">
+                </li>
+            </ul>
+        </div>
+        <h3 v-else="show">
+            Yükleniyor ...
+        </h3>
+    </template>
+    <!-- /Product -->
+
+    <!-- Categories -->
+    <template id="categories">
+        <div>
+            <h1>Kategori Listesi</h1>
+            <table cellpadding="1" border="1px">
+                <thead>
+                <tr>
+                    <th>Kategori Adı</th>
+                    <th>#</th>
+                    <th>#</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(category,key) in categories">
+                    <td>{{ category.name }}</td>
+                    <td><router-link :to="{ name: 'category_edit', params: { id: category.id }}">Düzenle</router-link></td>
+                    <td><a @click="categoryDelete(key)">Sil</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+    <!-- /Categories -->
+
+    <!-- Category Form -->
+    <template id="category">
+        <div v-if="show">
+            <ul>
+                <li>
+                    <label>Kategori Adı</label>
+                    <input type="text" v-model="category.name" />
+                </li>
+
+                <li>
+                    <label>Kampanya</label>
+                    <select v-model="category.campaign">
+                        <option value=""> -- Seçiniz -- </option>
+                        <option v-for="campaign in campaigns" :value="campaign.id">
+                            {{ campaign.name }}
+                        </option>
+                    </select>
+                </li>
+
+                <li>
+                    <input type="submit" @click="save()" value="Kaydet">
+                </li>
+            </ul>
+        </div>
+        <h3 v-else>
+            Yükleniyor ...
+        </h3>
+    </template>
+    <!-- /Category Form -->
+
+    <!-- Categories -->
+    <template id="campaigns">
+        <div>
+            <h1>Kampanya Listesi</h1>
+            <table cellpadding="1" border="1px">
+                <thead>
+                <tr>
+                    <th>Kampanya Adı</th>
+                    <th>#</th>
+                    <th>#</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(campaign,key) in campaigns">
+                    <td>{{ campaign.name }}</td>
+                    <td><router-link :to="{ name: 'campaign_edit', params: { id: campaign.id }}">Düzenle</router-link></td>
+                    <td><a @click="campaignDelete(key)">Sil</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+    <!-- /Categories -->
+
+    <!-- Campaign Form -->
+    <template id="campaign">
+        <div v-if="show">
+            <ul>
+                <li>
+                    <label>Kampanya Adı</label>
+                    <input type="text" v-model="campaign.name" />
+                </li>
+
+                <li>
+                    <label>Kampanya Türü</label>
+                    <select v-model="campaign.type">
+                        <option value="r">Oran</option>
+                        <option value="p">Fiyat</option>
+                    </select>
+                </li>
+
+                <li>
+                    <label v-if="campaign.type == 'r'">İndirim Oranı</label>
+                    <label v-else>İndirim Tutarı</label>
+                    <input type="text" v-model="campaign.discountAmount" />
+                </li>
+
+                <li v-if="campaign.type == 'r'">
+                    <label>Maks. İndirim Tutarı</label>
+                    <input type="text" v-model="campaign.maxDiscount" />
+                </li>
+
+
+                <li>
+                    <input type="submit" @click="save()" value="Kaydet">
+                </li>
+            </ul>
+        </div>
+        <h3 v-else>
+            Yükleniyor ...
+        </h3>
+    </template>
+    <!-- /Campaign Form -->
+
+
+    <script src="js/libraries/axios.min.js"></script>
+    <script src="js/libraries/vue.js"></script>
+    <script src="js/libraries/vue-router.min.js"></script>
+    <script src="js/compiled/products.js"></script>
+    <script src="js/compiled/categories.js"></script>
+    <script src="js/compiled/campaigns.js"></script>
+    <script src="js/compiled/app.js"></script>
+</body>
+</html>
